@@ -9,13 +9,6 @@ import { Readable } from "node:stream";
 
 ////////////////////////////////////////////////////////////////////////////////
 
-export class FileStoreError extends Error
-{
-    constructor(message: string) {
-        super(message);
-    }
-}
-
 /**
  * Interface for a file store implementation.
  */
@@ -57,4 +50,22 @@ export interface FileStore
      * @param fileName The name of the file to delete.
      */
     delete(fileName: string): Promise<void>;
+
+    /**
+     * Returns a list of all file names in the store
+     * matching the given prefix.
+     * @param prefix The prefix to match.
+     */
+    list(prefix?: string): Promise<string[]>;
+
+    /**
+     * Checks if a file with the given name exists in the store.
+     * @param fileName The name of the file to check.
+     */
+    has(fileName: string): Promise<boolean>;
+
+    /**
+     * Returns the type of the store.
+     */
+    type(): string;
 }

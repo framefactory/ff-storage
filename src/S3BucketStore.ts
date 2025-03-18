@@ -17,6 +17,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 import { FileStore } from "./FileStore.js";
+import { ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -151,6 +152,51 @@ export class S3BucketStore implements FileStore
 
         if (response.$metadata.httpStatusCode !== 204) {
             throw new IOError(`Failed to delete file: ${fileName} from bucket ${this.bucket}`);
+        }
+    }
+
+    /**
+     * Returns a list of all file names in the store
+     * matching the given prefix.
+     * @param prefix The prefix to match.
+     */
+    async list(prefix?: string): Promise<string[]>
+    {
+        const command = new ListObjectsV2Command({
+            Bucket: this.bucket,
+            Prefix: prefix,
+        });
+
+        const response = await this.client.send(command);
+
+        if (response.$metadata.httpStatusCode !== 200) {
+            throw new IOError(`Failed to list files in bucket ${this.bucket}`);
+        }
+
+        const fileNames = response.Contents?.map(item => item.Key) || [];
+        return fileNames;
+    }
+
+    /**
+     * Checks if a file with the given name exists in the store.
+     * @param fileName The name of the file to check.
+     */
+    async has(fileName: string): Promise<boolean>
+    {
+        try {
+            const command = new GetObjectCommand({
+                Bucket: this.bucket,
+                Key: fileName,
+            });
+            await this.client.send(command);
+
+            return true;
+        }
+        catch (error) {
+            if (error.name === "NoSuchKey" || error.name === "NotFound") {
+                return false;
+            }
+            throw new IOError(`Failed to check existence of file: ${fileName} in bucket ${this.bucket}`);
         }
     }
 

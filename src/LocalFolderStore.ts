@@ -84,4 +84,36 @@ export class LocalFolderStore implements FileStore
         const filePath = path.join(this.rootDir, fileName);
         return fsp.unlink(filePath);
     }
+
+    /**
+     * Returns a list of all file names in the store
+     * matching the given prefix.
+     * @param prefix The prefix to match.
+     */
+    async list(prefix?: string): Promise<string[]>
+    {
+        const files = await fsp.readdir(this.rootDir);
+        return files.filter(file => !prefix || file.startsWith(prefix));
+    }
+
+    /**
+     * Checks if a file with the given name exists in the store.
+     * @param fileName The name of the file to check.
+     */
+    async has(fileName: string): Promise<boolean>
+    {
+        const filePath = path.join(this.rootDir, fileName);
+        try {
+            await fsp.access(filePath);
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+
+    type(): string
+    {
+        return "local";
+    }
 }
