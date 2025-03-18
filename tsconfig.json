@@ -1,0 +1,31 @@
+{
+    "extends": "./tsconfig.base.json",
+
+    "compilerOptions": {
+        "sourceMap": true,
+        "target": "ES2021",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "declarationDir": "./build/types",
+        "outDir": "./build/esm",
+        "rootDir": "./src",
+
+        "baseUrl": "..",
+        "paths": {
+            "@ffweb/node/*": [ "node/src/*" ]
+        }
+    },
+    "include": [
+        "./src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+    ],
+    "references": [
+        { "path": "../node/tsconfig.json" }
+    ]
+}

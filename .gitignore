@@ -1,0 +1,16 @@
+# FOLDERS
+.idea/
+.vscode/
+.cache/
+.pnpm-store/
+node_modules/
+
+build/
+doc/
+
+# FILES
+.env
+.DS_Store
+*.log
+*.tsbuildinfo
+*.tgz

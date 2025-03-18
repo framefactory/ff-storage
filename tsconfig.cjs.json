@@ -1,0 +1,30 @@
+{
+    "extends": "./tsconfig.base.json",
+
+    "compilerOptions": {
+        "target": "ES2021",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "declarationDir": "./build/types",
+        "outDir": "./build/cjs",
+        "rootDir": "./src",
+
+        "baseUrl": "..",
+        "paths": {
+            "@ffweb/node/*": [ "node/src/*" ]
+        }
+    },
+    "include": [
+        "./src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+    ],
+    "references": [
+        { "path": "../node/tsconfig.json" }
+    ]
+}

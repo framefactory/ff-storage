@@ -1,0 +1,59 @@
+{
+    "name": "@ffweb/storage",
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "FF Storage Typescript Foundation Library",
+    "keywords": [
+        "node",
+        "nodejs",
+        "aws",
+        "s3",
+        "typescript"
+    ],
+    "homepage": "https://github.com/framefactory/ff-storage#readme",
+    "author": {
+        "name": "Ralph Wiedemeier",
+        "email": "opensource@framefactory.ch",
+        "url": "https://github.com/framefactory"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/framefactory/ff-storage.git"
+    },
+    "bugs": {
+        "url": "https://github.com/framefactory/ff-storage/issues"
+    },
+    "type": "module",
+    "packageManager": "pnpm@10.3.0",
+    "files": [
+        "build/types/**/*",
+        "build/esm/**/*",
+        "build/cjs/**/*",
+        "src/**/*"
+    ],
+    "exports": {
+        "./*": {
+            "types": "./build/types/*",
+            "import": "./build/esm/*",
+            "require": "./build/cjs/*"
+        }
+    },
+    "scripts": {
+        "build": "rm -rf ./build && pnpm build:cjs && pnpm build:esm",
+        "build:esm": "tsc -b tsconfig.json",
+        "build:cjs": "tsc -b tsconfig.cjs.json",
+        "clean": "rm -rf ./build"
+    },
+    "dependencies": {
+        "@ffweb/node": "workspace:*",
+        "@aws-sdk/client-s3": "^3.758.0"
+    },
+    "devDependencies": {
+        "@types/chai": "^5.2.0",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^22.13.10",
+        "chai": "^5.2.0",
+        "mocha": "^11.1.0",
+        "typescript": "^5.8.2"
+    }
+}
