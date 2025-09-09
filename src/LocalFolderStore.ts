@@ -35,7 +35,8 @@ export class LocalFolderStore implements FileStore
 
     /**
      * Creates the root directory if it does not exist.
-     * Must be called before using the store.
+     * If unsure whether the directory exists, call this method
+     * before using the store.
      */
     async initialize(): Promise<void>
     {
@@ -112,6 +113,28 @@ export class LocalFolderStore implements FileStore
         }
     }
 
+    /**
+     * Deletes all files in the store.
+     */
+    async clear(): Promise<void>
+    {
+        const files = await fsp.readdir(this.rootDir);
+        const tasks = files.map(file => fsp.unlink(path.join(this.rootDir, file)));
+        await Promise.all(tasks);
+    }
+
+    /**
+     * Checks if the store is empty.
+     */
+    async empty(): Promise<boolean>
+    {
+        const files = await fsp.readdir(this.rootDir);
+        return files.length === 0;
+    }
+
+    /**
+     * Returns the type of the store.
+     */
     type(): string
     {
         return "local";

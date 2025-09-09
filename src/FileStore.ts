@@ -15,7 +15,7 @@ import { Readable } from "node:stream";
 export interface FileStore
 {
     /**
-     * Initializes the file store. Must be called before using the store.
+     * Initializes the file store. Should be called before using the store.
      */
     initialize(): Promise<void>;
 
@@ -64,6 +64,16 @@ export interface FileStore
      */
     has(fileName: string): Promise<boolean>;
 
+    /**
+     * Deletes all files in the store.
+     */
+    clear(): Promise<void>;
+
+    /**
+     * Checks if the store is empty.
+     */
+    empty(): Promise<boolean>
+    
     /**
      * Returns the type of the store.
      */
