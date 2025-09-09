@@ -93,7 +93,13 @@ export class LocalFolderStore implements FileStore
      */
     async list(prefix?: string): Promise<string[]>
     {
-        const files = await fsp.readdir(this.rootDir);
+        const entries = await fsp.readdir(this.rootDir, { recursive: true, withFileTypes: true });
+
+        // filter file entries and make paths relative to rootDir
+        const files = entries
+            .filter(entry => entry.isFile())
+            .map(entry => path.relative(this.rootDir, path.join(entry.parentPath, entry.name)));
+
         return files.filter(file => !prefix || file.startsWith(prefix));
     }
 
