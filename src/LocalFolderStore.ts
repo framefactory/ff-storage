@@ -89,13 +89,14 @@ export class LocalFolderStore implements FileStore
         let dir = path.dirname(filePath);
 
         while (dir !== this.rootDir) {
-            const files = await fsp.readdir(dir);
-
-            if (files.length > 0) {
+            try {
+                await fsp.rmdir(dir);
+            }
+            catch {
+                // dir not empty or not existing
                 break;
             }
 
-            await fsp.rmdir(dir);
             dir = path.dirname(dir);
         }
     }
@@ -138,8 +139,8 @@ export class LocalFolderStore implements FileStore
      */
     async clear(): Promise<void>
     {
-        const files = await fsp.readdir(this.rootDir);
-        const tasks = files.map(file => fsp.unlink(path.join(this.rootDir, file)));
+        const files = await this.list();
+        const tasks = files.map(file => this.delete(file));
         await Promise.all(tasks);
     }
 
@@ -148,8 +149,8 @@ export class LocalFolderStore implements FileStore
      */
     async empty(): Promise<boolean>
     {
-        const files = await fsp.readdir(this.rootDir);
-        return files.length === 0;
+        const entries = await fsp.readdir(this.rootDir);
+        return entries.length === 0;
     }
 
     /**

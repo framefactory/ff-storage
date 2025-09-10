@@ -11,10 +11,11 @@ import {
     S3Client,
     GetObjectCommand,
     PutObjectCommand,
-    CreateBucketCommand,
-    HeadBucketCommand,
+    HeadObjectCommand,
     DeleteObjectCommand,
     DeleteObjectsCommand,
+    CreateBucketCommand,
+    HeadBucketCommand,
 } from "@aws-sdk/client-s3";
 
 import { FileStore } from "./FileStore.js";
@@ -187,17 +188,21 @@ export class S3BucketStore implements FileStore
     async has(fileName: string): Promise<boolean>
     {
         try {
-            const command = new GetObjectCommand({
+            const command = new HeadObjectCommand({
                 Bucket: this.bucket,
                 Key: fileName,
             });
 
+            await this.client.send(command);
             return true;
         }
         catch (error) {
-            if (error.name === "NoSuchKey" || error.name === "NotFound") {
+            if (error.name === "NoSuchKey" || error.name === "NotFound"
+                || error.$metadata?.httpStatusCode === 404)
+            {
                 return false;
             }
+            
             throw new IOError(`Failed to check existence of file: ${fileName} in bucket ${this.bucket}`);
         }
     }
