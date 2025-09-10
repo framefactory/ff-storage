@@ -83,7 +83,21 @@ export class LocalFolderStore implements FileStore
     async delete(fileName: string): Promise<void>
     {
         const filePath = path.join(this.rootDir, fileName);
-        return fsp.unlink(filePath);
+        await fsp.unlink(filePath);
+
+        // remove empty parent directories
+        let dir = path.dirname(filePath);
+
+        while (dir !== this.rootDir) {
+            const files = await fsp.readdir(dir);
+
+            if (files.length > 0) {
+                break;
+            }
+
+            await fsp.rmdir(dir);
+            dir = path.dirname(dir);
+        }
     }
 
     /**
