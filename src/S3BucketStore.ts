@@ -14,12 +14,12 @@ import {
     HeadObjectCommand,
     DeleteObjectCommand,
     DeleteObjectsCommand,
+    ListObjectsV2Command,
     CreateBucketCommand,
     HeadBucketCommand,
 } from "@aws-sdk/client-s3";
 
 import { FileStore } from "./FileStore.js";
-import { ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -166,18 +166,33 @@ export class S3BucketStore implements FileStore
      */
     async list(prefix?: string): Promise<string[]>
     {
-        const command = new ListObjectsV2Command({
-            Bucket: this.bucket,
-            Prefix: prefix,
-        });
+        const fileNames: string[] = [];
+        let ContinuationToken: string | undefined = undefined;
 
-        const response = await this.client.send(command);
+        while (true) {
+            const command = new ListObjectsV2Command({
+                Bucket: this.bucket,
+                Prefix: prefix,
+                ContinuationToken,
+            });
 
-        if (response.$metadata.httpStatusCode !== 200) {
-            throw new IOError(`Failed to list files in bucket ${this.bucket}`);
+            const response = await this.client.send(command);
+
+            if (response.$metadata.httpStatusCode !== 200) {
+                throw new IOError(`Failed to list files in bucket ${this.bucket}`);
+            }
+
+            const contents = response.Contents ?? [];
+            fileNames.push(...contents.map(item => item.Key));
+
+            if (response.IsTruncated) {
+                ContinuationToken = response.NextContinuationToken;
+            }
+            else {
+                break;
+            }
         }
 
-        const fileNames = response.Contents?.map(item => item.Key) || [];
         return fileNames;
     }
 
