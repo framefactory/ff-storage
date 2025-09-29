@@ -36,5 +36,40 @@ export class StoreBackup
             const stream = await source.readStream(fileName);
             await target.write(fileName, stream);
         };
+
+        console.log(`[StoreBackup] completed, ${fileNames.length} files copied.`);
+    }
+
+    /**
+     * Copies files that are in source but not in target, and deletes files that are in target but not in source.
+     * Only checks file existence, does not check for file modifications or updates.
+     * @param source The source file store.
+     * @param target The target file store.
+     * @param prefix Optional prefix to filter files in the source store.
+     */
+    static async copyStoreDiff(source: FileStore, target: FileStore, prefix = ""): Promise<void>
+    {
+        const targetFiles = await target.list(prefix);
+        const targetSet = new Set(targetFiles);
+        const sourceFiles = await source.list(prefix);
+        const sourceSet = new Set(sourceFiles);
+
+        const addedFiles = sourceFiles.filter(name => !targetSet.has(name));
+        const removedFiles = targetFiles.filter(name => !sourceSet.has(name));
+
+        console.log(`[StoreBackup] copying ${addedFiles.length} added files...`);
+        for (const fileName of addedFiles) {
+            console.log(`[StoreBackup] copying ${fileName}`);
+            const stream = await source.readStream(fileName);
+            await target.write(fileName, stream);
+        };
+
+        console.log(`[StoreBackup] delete ${removedFiles.length} removed files...`);
+        for (const fileName of removedFiles) {
+            console.log(`[StoreBackup] deleting ${fileName}`);
+            await target.delete(fileName);
+        };
+
+        console.log(`[StoreBackup] completed, ${addedFiles.length} files added, ${removedFiles.length} files removed.`);
     }
 }
